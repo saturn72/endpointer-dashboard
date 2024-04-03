@@ -6,12 +6,14 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { MainNav } from '@/components/dashboard/layout/main-nav';
 import { SideNav } from '@/components/dashboard/layout/side-nav';
+import Alert from '@/components/core/alert';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps): React.JSX.Element {
+
   return (
     <AuthGuard>
       <GlobalStyles
@@ -38,6 +40,7 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
         <SideNav />
         <Box sx={{ display: 'flex', flex: '1 1 auto', flexDirection: 'column', pl: { lg: 'var(--SideNav-width)' } }}>
           <MainNav />
+          {/* <Alert severity={alert.severity} message={alert.message} title={alert.title} /> */}
           <main>
             <Container maxWidth="xl" sx={{ py: '64px' }}>
               {children}
@@ -45,6 +48,6 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
           </main>
         </Box>
       </Box>
-    </AuthGuard>
+    </AuthGuard >
   );
 }

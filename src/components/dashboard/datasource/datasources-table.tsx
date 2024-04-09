@@ -1,123 +1,143 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
+import RouterLink from 'next/link';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
+import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
-import dayjs from 'dayjs';
+import { CheckCircle as CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
+import { Clock as ClockIcon } from '@phosphor-icons/react/dist/ssr/Clock';
+import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
+import { Image as ImageIcon } from '@phosphor-icons/react/dist/ssr/Image';
 
-import { useSelection } from '@/hooks/use-selection';
-import { Datasource } from '@/domain/datasources';
+import { paths } from '@/paths';
+import type { ColumnDef } from '@/components/core/data-table';
+import { DataTable } from '@/components/core/data-table';
 
-function noop(): void {
-  // do nothing
+export interface Datasource {
+  id: string;
+  name: string;
+  image: string | null;
+  category: string;
+  type: string;
+  quantity: number;
+  currency: string;
+  price: number;
+  sku: string;
+  status: 'published' | 'draft';
+  createdAt: Date;
 }
 
-interface DatasourcesTableProps {
-  count?: number;
-  page?: number;
+const columns = [
+  {
+    formatter: (row): React.JSX.Element => (
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        {row.image ? (
+          <Box
+            sx={{
+              alignItems: 'center',
+              bgcolor: 'var(--mui-palette-background-level2)',
+              backgroundImage: `url(${row.image})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              borderRadius: 1,
+              display: 'flex',
+              height: '80px',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              width: '80px',
+            }}
+          />
+        ) : (
+          <Box
+            sx={{
+              alignItems: 'center',
+              bgcolor: 'var(--mui-palette-background-level2)',
+              borderRadius: 1,
+              display: 'flex',
+              height: '80px',
+              justifyContent: 'center',
+              width: '80px',
+            }}
+          >
+            <ImageIcon fontSize="var(--icon-fontSize-lg)" />
+          </Box>
+        )}
+        <div>
+          <Link
+            color="text.primary"
+            component={RouterLink}
+            href={paths.dashboard.datasources.preview('1')}
+            sx={{ whiteSpace: 'nowrap' }}
+            variant="subtitle2"
+          >
+            {row.name}
+          </Link>
+          <Typography color="text.secondary" variant="body2">
+            in {row.category}
+          </Typography>
+        </div>
+      </Stack>
+    ),
+    name: 'Name',
+    width: '300px',
+  },
+  { field: 'sku', name: 'SKU', width: '150px' },
+  { field: 'quantity', name: 'Stock', width: '100px' },
+  {
+    formatter(row) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: row.currency }).format(row.price);
+    },
+    name: 'Price',
+    width: '150px',
+  },
+  {
+    formatter: (row): React.JSX.Element => {
+      const mapping = {
+        draft: { label: 'Draft', icon: <ClockIcon color="var(--mui-palette-secondary-main)" /> },
+        published: {
+          label: 'Published',
+          icon: <CheckCircleIcon color="var(--mui-palette-success-main)" weight="fill" />,
+        },
+      } as const;
+      const { label, icon } = mapping[row.status] ?? { label: 'Unknown', icon: null };
+
+      return <Chip icon={icon} label={label} size="small" variant="outlined" />;
+    },
+    name: 'Status',
+    width: '150px',
+  },
+  {
+    formatter: (): React.JSX.Element => (
+      <IconButton component={RouterLink} href={paths.dashboard.datasources.preview('1')}>
+        <EyeIcon />
+      </IconButton>
+    ),
+    name: 'Actions',
+    hideName: true,
+    width: '100px',
+    align: 'right',
+  },
+] satisfies ColumnDef<Datasource>[];
+
+export interface DatasourcesTableProps {
   rows?: Datasource[];
-  rowsPerPage?: number;
 }
 
-export function DatasourcesTable({
-  count = 0,
-  rows = [],
-  page = 0,
-  rowsPerPage = 0,
-}: DatasourcesTableProps): React.JSX.Element {
-  const rowIds = React.useMemo(() => {
-    return rows.map((datasource) => datasource.id);
-  }, [rows]);
-
-  const { selectAll, deselectAll, selectOne, deselectOne, selected } = useSelection(rowIds);
-
-  const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
-  const selectedAll = rows.length > 0 && selected?.size === rows.length;
-
+export function DatasourcesTable({ rows = [] }: DatasourcesTableProps): React.JSX.Element {
   return (
-    <Card>
-      <Box sx={{ overflowX: 'auto' }}>
-        <Table sx={{ minWidth: '800px' }}>
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={selectedAll}
-                  indeterminate={selectedSome}
-                  onChange={(event) => {
-                    if (event.target.checked) {
-                      selectAll();
-                    } else {
-                      deselectAll();
-                    }
-                  }}
-                />
-              </TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Alias</TableCell>
-              <TableCell>Latest Version</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Created On</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => {
-              const isSelected = selected?.has(row.id);
-
-              return (
-                <TableRow hover key={row.id} selected={isSelected}>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={(event) => {
-                        if (event.target.checked) {
-                          selectOne(row.id);
-                        } else {
-                          deselectOne(row.id);
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-                      <Avatar src={row.icon} />
-                      <Typography variant="subtitle2">{row.name}</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>{row.alias}</TableCell>
-                  <TableCell>
-                    {row.version}
-                    {/* {row.address.city}, {row.address.state}, {row.address.country} */}
-                  </TableCell>
-                  <TableCell>{row.type}</TableCell>
-                  <TableCell>{dayjs(row.createdAt).format('MMM D, YYYY')}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </Box>
-      <Divider />
-      <TablePagination
-        component="div"
-        count={count}
-        onPageChange={noop}
-        onRowsPerPageChange={noop}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}
-      />
-    </Card>
+    <React.Fragment>
+      <DataTable<Datasource> columns={columns} rows={rows} />
+      {!rows.length ? (
+        <Box sx={{ p: 3 }}>
+          <Typography color="text.secondary" sx={{ textAlign: 'center' }} variant="body2">
+            No datasources found
+          </Typography>
+        </Box>
+      ) : null}
+    </React.Fragment>
   );
 }

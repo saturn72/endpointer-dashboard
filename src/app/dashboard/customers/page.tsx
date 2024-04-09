@@ -1,153 +1,155 @@
 import * as React from 'react';
 import type { Metadata } from 'next';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Download as DownloadIcon } from '@phosphor-icons/react/dist/ssr/Download';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
-import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
-import dayjs from 'dayjs';
 
 import { config } from '@/config';
+import { dayjs } from '@/lib/dayjs';
 import { CustomersFilters } from '@/components/dashboard/customer/customers-filters';
+import type { Filters } from '@/components/dashboard/customer/customers-filters';
+import { CustomersPagination } from '@/components/dashboard/customer/customers-pagination';
+import { CustomersSelectionProvider } from '@/components/dashboard/customer/customers-selection-context';
 import { CustomersTable } from '@/components/dashboard/customer/customers-table';
 import type { Customer } from '@/components/dashboard/customer/customers-table';
 
-export const metadata = { title: `Customers | Dashboard | ${config.site.name}` } satisfies Metadata;
+export const metadata = { title: `List | Customers | Dashboard | ${config.site.name}` } satisfies Metadata;
 
 const customers = [
-  {
-    id: 'USR-010',
-    name: 'Alcides Antonio',
-    avatar: '/assets/avatar-10.png',
-    email: 'alcides.antonio@devias.io',
-    phone: '908-691-3242',
-    address: { city: 'Madrid', country: 'Spain', state: 'Comunidad de Madrid', street: '4158 Hedge Street' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-009',
-    name: 'Marcus Finn',
-    avatar: '/assets/avatar-9.png',
-    email: 'marcus.finn@devias.io',
-    phone: '415-907-2647',
-    address: { city: 'Carson City', country: 'USA', state: 'Nevada', street: '2188 Armbrester Drive' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-008',
-    name: 'Jie Yan',
-    avatar: '/assets/avatar-8.png',
-    email: 'jie.yan.song@devias.io',
-    phone: '770-635-2682',
-    address: { city: 'North Canton', country: 'USA', state: 'Ohio', street: '4894 Lakeland Park Drive' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-007',
-    name: 'Nasimiyu Danai',
-    avatar: '/assets/avatar-7.png',
-    email: 'nasimiyu.danai@devias.io',
-    phone: '801-301-7894',
-    address: { city: 'Salt Lake City', country: 'USA', state: 'Utah', street: '368 Lamberts Branch Road' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-006',
-    name: 'Iulia Albu',
-    avatar: '/assets/avatar-6.png',
-    email: 'iulia.albu@devias.io',
-    phone: '313-812-8947',
-    address: { city: 'Murray', country: 'USA', state: 'Utah', street: '3934 Wildrose Lane' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
   {
     id: 'USR-005',
     name: 'Fran Perez',
     avatar: '/assets/avatar-5.png',
-    email: 'fran.perez@devias.io',
-    phone: '712-351-5711',
-    address: { city: 'Atlanta', country: 'USA', state: 'Georgia', street: '1865 Pleasant Hill Road' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
+    email: 'fran.perez@domain.com',
+    phone: '(815) 704-0045',
+    quota: 50,
+    status: 'active',
+    createdAt: dayjs().subtract(1, 'hour').toDate(),
   },
-
   {
     id: 'USR-004',
     name: 'Penjani Inyene',
     avatar: '/assets/avatar-4.png',
-    email: 'penjani.inyene@devias.io',
-    phone: '858-602-3409',
-    address: { city: 'Berkeley', country: 'USA', state: 'California', street: '317 Angus Road' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
+    email: 'penjani.inyene@domain.com',
+    phone: '(803) 937-8925',
+    quota: 100,
+    status: 'active',
+    createdAt: dayjs().subtract(3, 'hour').toDate(),
   },
   {
     id: 'USR-003',
     name: 'Carson Darrin',
     avatar: '/assets/avatar-3.png',
-    email: 'carson.darrin@devias.io',
-    phone: '304-428-3097',
-    address: { city: 'Cleveland', country: 'USA', state: 'Ohio', street: '2849 Fulton Street' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
+    email: 'carson.darrin@domain.com',
+    phone: '(715) 278-5041',
+    quota: 10,
+    status: 'blocked',
+    createdAt: dayjs().subtract(1, 'hour').subtract(1, 'day').toDate(),
   },
   {
     id: 'USR-002',
     name: 'Siegbert Gottfried',
     avatar: '/assets/avatar-2.png',
-    email: 'siegbert.gottfried@devias.io',
-    phone: '702-661-1654',
-    address: { city: 'Los Angeles', country: 'USA', state: 'California', street: '1798 Hickory Ridge Drive' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
+    email: 'siegbert.gottfried@domain.com',
+    phone: '(603) 766-0431',
+    quota: 0,
+    status: 'pending',
+    createdAt: dayjs().subtract(7, 'hour').subtract(1, 'day').toDate(),
   },
   {
     id: 'USR-001',
     name: 'Miron Vitold',
     avatar: '/assets/avatar-1.png',
-    email: 'miron.vitold@devias.io',
-    phone: '972-333-4106',
-    address: { city: 'San Diego', country: 'USA', state: 'California', street: '75247' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
+    email: 'miron.vitold@domain.com',
+    phone: '(425) 434-5535',
+    quota: 50,
+    status: 'active',
+    createdAt: dayjs().subtract(2, 'hour').subtract(2, 'day').toDate(),
   },
 ] satisfies Customer[];
 
-export default function Page(): React.JSX.Element {
-  const page = 0;
-  const rowsPerPage = 5;
+interface PageProps {
+  searchParams: { email?: string; phone?: string; sortDir?: 'asc' | 'desc'; status?: string };
+}
 
-  const paginatedCustomers = applyPagination(customers, page, rowsPerPage);
+export default function Page({ searchParams }: PageProps): React.JSX.Element {
+  const { email, phone, sortDir, status } = searchParams;
+
+  const sortedCustomers = applySort(customers, sortDir);
+  const filteredCustomers = applyFilters(sortedCustomers, { email, phone, status });
 
   return (
-    <Stack spacing={3}>
-      <Stack direction="row" spacing={3}>
-        <Stack spacing={1} sx={{ flex: '1 1 auto' }}>
-          <Typography variant="h4">Customers</Typography>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <Button color="inherit" startIcon={<UploadIcon fontSize="var(--icon-fontSize-md)" />}>
-              Import
+    <Box
+      sx={{
+        maxWidth: 'var(--Content-maxWidth)',
+        m: 'var(--Content-margin)',
+        p: 'var(--Content-padding)',
+        width: 'var(--Content-width)',
+      }}
+    >
+      <Stack spacing={4}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ alignItems: 'flex-start' }}>
+          <Box sx={{ flex: '1 1 auto' }}>
+            <Typography variant="h4">Customers</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button startIcon={<PlusIcon />} variant="contained">
+              Add
             </Button>
-            <Button color="inherit" startIcon={<DownloadIcon fontSize="var(--icon-fontSize-md)" />}>
-              Export
-            </Button>
-          </Stack>
+          </Box>
         </Stack>
-        <div>
-          <Button
-            startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />}
-            variant="contained">
-            Add
-          </Button>
-        </div>
+        <CustomersSelectionProvider customers={filteredCustomers}>
+          <Card>
+            <CustomersFilters filters={{ email, phone, status }} sortDir={sortDir} />
+            <Divider />
+            <Box sx={{ overflowX: 'auto' }}>
+              <CustomersTable rows={filteredCustomers} />
+            </Box>
+            <Divider />
+            <CustomersPagination count={filteredCustomers.length + 100} page={0} />
+          </Card>
+        </CustomersSelectionProvider>
       </Stack>
-      <CustomersFilters />
-      <CustomersTable
-        count={paginatedCustomers.length}
-        page={page}
-        rows={paginatedCustomers}
-        rowsPerPage={rowsPerPage}
-      />
-    </Stack>
+    </Box>
   );
 }
 
-function applyPagination(rows: Customer[], page: number, rowsPerPage: number): Customer[] {
-  return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+// Sorting and filtering has to be done on the server.
+
+function applySort(row: Customer[], sortDir: 'asc' | 'desc' | undefined): Customer[] {
+  return row.sort((a, b) => {
+    if (sortDir === 'asc') {
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    }
+
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
+}
+
+function applyFilters(row: Customer[], { email, phone, status }: Filters): Customer[] {
+  return row.filter((item) => {
+    if (email) {
+      if (!item.email?.toLowerCase().includes(email.toLowerCase())) {
+        return false;
+      }
+    }
+
+    if (phone) {
+      if (!item.phone?.toLowerCase().includes(phone.toLowerCase())) {
+        return false;
+      }
+    }
+
+    if (status) {
+      if (item.status !== status) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 }

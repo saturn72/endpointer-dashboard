@@ -3,16 +3,14 @@ import type { Components } from '@mui/material/styles';
 import type { Theme } from '../types';
 
 export const MuiTab = {
+  defaultProps: { disableRipple: true },
   styleOverrides: {
     root: {
-      fontSize: '14px',
-      fontWeight: 500,
-      lineHeight: 1.71,
       minWidth: 'auto',
-      paddingLeft: 0,
-      paddingRight: 0,
+      paddingInline: 0,
       textTransform: 'none',
-      '& + &': { marginLeft: '24px' },
+      '&:hover': { color: 'var(--mui-palette-text-primary)' },
+      '&:focus-visible': { outline: '2px solid var(--mui-palette-primary-main)' },
     },
   },
 } satisfies Components<Theme>['MuiTab'];

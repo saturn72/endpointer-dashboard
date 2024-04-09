@@ -8,8 +8,8 @@ import { Select } from '@mui/material';
 import { icons } from './icons';
 import type { Icon } from '@phosphor-icons/react/dist/lib/types';
 import { Option } from '@/components/core/option';
-import { DatasourceFileDropZone } from './datasource-file-drop-zone';
-import { DatasourceSql } from './datasource-sql-database';
+import { DatasourceFileConnection } from './connections/datasource-file-connection';
+import { DatasourceSqlConnection } from './connections/datasource-sql-connection';
 
 type TypeOption =  { 
   text: string; 
@@ -20,6 +20,13 @@ type TypeOption =  {
   icon: Icon,
   attributes?:any
  };
+ export interface DatasourceCategoryStepProps {
+  onNext?: () => void;
+  onBack?: () => void;
+}
+
+
+export function DatasourceConnectionStep({ onBack, onNext }: DatasourceCategoryStepProps): React.JSX.Element {
  
 const typeOptions: TypeOption[] = [
   { 
@@ -27,30 +34,27 @@ const typeOptions: TypeOption[] = [
     // description: 'Upload file datasource', 
     value: 'file',
     icon: icons['file'],
-    component: DatasourceFileDropZone,
-    attributes: { 
-      accept: { 
-          'application/json':[],
-          'application/xml':[],
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':[],
-          'text/csv':[]
-        },
-        caption: "(JSON, XML, XLSX or CSV maximum 10 megabytes)"
+    component: DatasourceFileConnection,
+    attributes:{
+      onUploaded: (files:File[]) => {
+        setFiles(files);
       }
+    }
   },
   {
     text: 'SQL Database',
     // description: 'Read the content a table or execute SQL Script',
     value: 'sql',
     icon: icons['file-sql'],
-    component: DatasourceSql
+    component: DatasourceSqlConnection
   },
   { 
     text: 'nosql Database',
     // description: 'Read the content an index',
     value: 'nosql',
     icon: icons['file-js'],
-    component: DatasourceFileDropZone
+    disabled:true,
+    component: DatasourceFileConnection
   },
   { 
     text: 'Google Sheet',
@@ -58,7 +62,7 @@ const typeOptions: TypeOption[] = [
     value: 'goggle-sheet',
     disabled:true,
     icon: icons['google-drive'],
-    component: DatasourceFileDropZone
+    component: DatasourceFileConnection
   },
   { 
     text: 'Excel Online',
@@ -66,17 +70,13 @@ const typeOptions: TypeOption[] = [
     value: 'excel-online',
     disabled:true,
     icon: icons['excel'],
-    component: DatasourceFileDropZone
+    component: DatasourceFileConnection
   },
 ] ;
 
-export interface DatasourceCategoryStepProps {
-  onNext?: () => void;
-  onBack?: () => void;
-}
 
-export function DatasourceConnectionStep({ onBack, onNext }: DatasourceCategoryStepProps): React.JSX.Element {
   const [type, setType] = React.useState<TypeOption>(typeOptions[0]);
+  const [files, setFiles] = React.useState<File[]>([]);
 
   const handleTypeChange = React.useCallback((newType: string) => {
     const type = typeOptions.find(o => o.value == newType) ?? typeOptions[0];
@@ -102,8 +102,8 @@ export function DatasourceConnectionStep({ onBack, onNext }: DatasourceCategoryS
                 </Option>
               ))} 
       </Select>
-      
-      {<type.component {...type.attributes}/>}
+      {files.length}
+      {<type.component {...type.attributes} />}
       <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
         <Button color="secondary" onClick={onBack} startIcon={<ArrowLeftIcon />}>
           Back

@@ -1,3 +1,4 @@
+'use client'
 
 import * as React from 'react';
 import Button from '@mui/material/Button';
@@ -13,8 +14,9 @@ import { FormHelperText } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { apiFetch } from '@/components/core/backend-fetch';
 import { useSearchParams } from 'next/navigation';
+import { DatasourceModel } from './models/DatasourceModel';
 
-export function DatasourceDetailsStep(): React.JSX.Element {
+export function DatasourceDetails(): React.JSX.Element {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [tagValue, setTagValue] = React.useState<string>('');
 
@@ -64,10 +66,20 @@ export function DatasourceDetailsStep(): React.JSX.Element {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setLoading(true);
-
-    const res = await apiFetch('datasource', 'POST', form);
-    console.log("this is thr res", res);
+    const res = await apiFetch<DatasourceModel>('datasource', 'POST', form);
     setLoading(false);
+
+    if (!res.errors) {
+      console.log("redirect to edit/id");
+    }
+    else {
+      if (Array.isArray(res.errors)) {
+        console.log("add keys to each attribute");
+      }
+      
+
+      console.log("add to route and add error message");
+    }
   }
 
   return (
@@ -75,7 +87,7 @@ export function DatasourceDetailsStep(): React.JSX.Element {
       <Stack spacing={4}>
         <Stack spacing={3}>
           <div>
-            <Typography variant="h6">Some information about the datasource</Typography>
+            <Typography variant="h6">Datasource Details</Typography>
           </div>
           <Stack spacing={3}>
             <FormControl>

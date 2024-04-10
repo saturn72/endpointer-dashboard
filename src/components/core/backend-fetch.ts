@@ -1,4 +1,4 @@
-type ServerMessage = { key: string; message: string; code: number | string };
+type ServerMessage = { key: string; message: string; code?: number | string };
 type ErrorInfo = {
   errors?: string | ServerMessage | ServerMessage[];
 };
@@ -37,8 +37,16 @@ export async function apiFetch<T>(
       throw new Error(res.statusText);
     }
 
-    return { data: res.json() as T };
+    const data = res.json();
+    return { data };
   } catch (err) {
-    return { data: body, errors: 'unknown error' };
+    return {
+      data: body,
+      errors: [
+        { key: 'name', message: 'some error related to name1' },
+        { key: 'name', message: 'some error related to name2' },
+        { key: 'alias', message: 'some error related to alias' },
+      ],
+    };
   }
 }

@@ -176,8 +176,8 @@ function LanguageSwitch(): React.JSX.Element {
 
 const user = {
   id: 'USR-000',
-  name: 'Sofia Rivers',
-  avatar: '/assets/avatar.png',
+  name: 'Roi Shabtai',
+  avatar: '/assets/avatar-1.png',
   email: 'sofia@devias.io',
 } satisfies User;
 

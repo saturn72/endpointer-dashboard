@@ -94,7 +94,7 @@ export function DatasourceDetails(): React.JSX.Element {
       return;
     }
 
-    showAlert({ message: "Failed to create datasource. Please retry later", severity: 'error' });
+    showAlert({ message: "Failed to create datasource. Please try again later", severity: 'error' });
   }
 
   const { dispatch: showAlert } = useContext(AlertDispatchContext);

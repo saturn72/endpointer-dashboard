@@ -42,7 +42,8 @@ export function AlertContextProvider({ children }: { children: React.ReactNode }
   const [alert, dispatch] = useReducer(reducer, null!);
 
   useEffect(() => {
-    if (alert) {
+    //error is not auto-clear
+    if (alert && alert.severity != "error") {
       setTimeout(() => dispatch(undefined), alert.duration);
     }
   }, [alert]);
@@ -52,7 +53,7 @@ export function AlertContextProvider({ children }: { children: React.ReactNode }
       <AlertDispatchContext.Provider value={{ dispatch }}>
         <Box sx={{ width: '100%' }}>
           <Collapse in={alert && alert != null}>
-            <Alert severity={alert?.severity}>{alert?.message}</Alert>
+            <Alert severity={alert?.severity} onClose={() => dispatch(undefined)}>{alert?.message}</Alert>
           </Collapse>
         </Box>
         {children}

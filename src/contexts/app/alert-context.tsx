@@ -1,55 +1,62 @@
-'use client';
+import { Alert, Box, Collapse } from '@mui/material';
+import { createContext, useEffect, useReducer } from 'react';
 
-import * as React from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import type { Auth } from 'firebase/auth';
+type severity = 'success' | 'info' | 'warning' | 'error';
 
-import type { Alert } from '@/types/alert';
-import { getFirebaseAuth } from '@/lib/auth/firebase/client';
-import { logger } from '@/lib/default-logger';
+type AlertInfo = {
+  severity?: severity;
+  message?: string;
+  duration?: number;
+};
 
-import type { AlertContextValue } from '../types';
-
-export const AlertContext = React.createContext<AlertContextValue | undefined>(undefined);
-
-export interface AlertProviderProps {
-  children: React.ReactNode;
+type AlertContextType = {
+  alert?: AlertInfo;
 }
 
-export function AlertProvider({ children }: AlertProviderProps): React.JSX.Element {
-  const [firebaseAuth] = React.useState<Auth>(getFirebaseAuth());
-
-  const [state, setState] = React.useState<{ alert: Alert | null; error: string | null; isLoading: boolean }>({
-    alert: null,
-    error: null,
-    isLoading: true,
-  });
-
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (alert) => {
-      logger.debug('[Auth] onAuthStateChanged:', alert);
-
-      setState((prev) => ({
-        ...prev,
-        alert: alert
-          ? ({
-            id: alert.uid,
-            email: alert.email ?? undefined,
-            name: alert.displayName ?? undefined,
-            avatar: alert.photoURL ?? undefined,
-          } satisfies Alert)
-          : null,
-        error: null,
-        isLoading: false,
-      }));
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [firebaseAuth]);
-
-  return <AlertContext.Provider value={{ ...state }}>{children}</AlertContext.Provider>;
+type AlertDispatchContextType = {
+  dispatch: React.Dispatch<AlertInfo | undefined>;
 }
 
-export const AlertConsumer = AlertContext.Consumer;
+export const AlertContext = createContext<AlertContextType>({} as AlertContextType);
+
+export const AlertDispatchContext = createContext<AlertDispatchContextType>({} as AlertDispatchContextType);
+
+function reducer(
+  alert: AlertInfo | undefined,
+  alertInfo: AlertInfo | undefined) {
+
+  if (!alertInfo) {
+    return undefined;
+  }
+
+  const ai = {
+    severity: alertInfo.severity || "info",
+    message: alertInfo.message,
+    duration: alertInfo.duration || 5000
+  };
+
+  return ai;
+}
+
+export function AlertContextProvider({ children }: { children: React.ReactNode }): React.JSX.Element {
+  const [alert, dispatch] = useReducer(reducer, null!);
+
+  useEffect(() => {
+    if (alert) {
+      setTimeout(() => dispatch(undefined), alert.duration);
+    }
+  }, [alert]);
+
+  return (
+    <AlertContext.Provider value={{ alert }}>
+      <AlertDispatchContext.Provider value={{ dispatch }}>
+        <Box sx={{ width: '100%' }}>
+          <Collapse in={alert && alert != null}>
+            <Alert severity={alert?.severity}>{alert?.message}</Alert>
+          </Collapse>
+        </Box>
+        {children}
+      </AlertDispatchContext.Provider>
+    </AlertContext.Provider >
+  );
+}

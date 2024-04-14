@@ -16,6 +16,8 @@ import { apiFetch } from '@/components/core/backend-fetch';
 import { useSearchParams } from 'next/navigation';
 import { DatasourceModel } from './models/DatasourceModel';
 import { FormInput } from './form-input';
+import { AlertDispatchContext } from '@/contexts/app/alert-context';
+import { useContext, useState, useCallback } from 'react';
 
 const captions: { [key: string]: React.JSX.Element } = {
   name: (<>
@@ -37,27 +39,23 @@ export function DatasourceDetails(): React.JSX.Element {
     alias: searchParams.get("alias") ?? '',
     tags: searchParams.get("tags") ?? ''
   };
-  const [form, setForm] = React.useState<{ [key: string]: string }>(f);
+  const [form, setForm] = useState<{ [key: string]: string }>(f);
 
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [tagValue, setTagValue] = React.useState<string>('');
-  const [errors, setErrors] = React.useState<{ [key: string]: string }>({});
-
-  function FormInputWithValue({ name }: { name: string }): React.JSX.Element {
-    return (<FormInput name={name} value={form[name]} error={errors[name]} caption={captions[name]} onChange={handleChange} />)
-  }
+  const [loading, setLoading] = useState<boolean>(false);
+  const [tagValue, setTagValue] = useState<string>('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const s: Set<string> = f.tags.trim().length > 0 ? new Set(f.tags.split(',')) : new Set();
-  const [tags, setTags] = React.useState<Set<string>>(s);
+  const [tags, setTags] = useState<Set<string>>(s);
 
-  const handleChange = (e: { target: { name: any; value: any; }; }) =>
-
+  const handleChange = (e: { target: { name: any; value: any; }; }) => {
     setForm((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
     }));
+  };
 
-  const handleTagAdd = React.useCallback(() => {
+  const handleTagAdd = useCallback(() => {
     if (!tagValue) {
       return;
     }
@@ -75,7 +73,7 @@ export function DatasourceDetails(): React.JSX.Element {
     setTagValue('');
   }, [tagValue]);
 
-  const handleTagDelete = React.useCallback((deletedTag: string) => {
+  const handleTagDelete = useCallback((deletedTag: string) => {
     setTags((prevState) => {
       const copy = new Set(prevState);
       copy.delete(deletedTag);
@@ -93,22 +91,13 @@ export function DatasourceDetails(): React.JSX.Element {
 
     if (!res.errors) {
       console.log("redirect to edit/id");
+      return;
     }
-    else {
-      if (Array.isArray(res.errors)) {
-        res.errors.forEach(a => setErrors(prev => ({
-          ...prev,
-          [a.key]: a.message
-        })));
-        return;
-      }
 
-      
-
-
-      console.log("add to route and add error message");
-    }
+    showAlert({ message: "Failed to create datasource. Please retry later", severity: 'error' });
   }
+
+  const { dispatch: showAlert } = useContext(AlertDispatchContext);
 
   return (
     <form onSubmit={onSubmit} >
@@ -118,8 +107,8 @@ export function DatasourceDetails(): React.JSX.Element {
             <Typography variant="h6">Datasource Details</Typography>
           </div>
           <Stack spacing={3}>
-            <FormInputWithValue name="name" />
-            <FormInputWithValue name="alias" />
+            <FormInput name={'name'} value={form['name']} error={errors['name']} caption={captions['name']} onChange={handleChange} />
+            <FormInput name={'alias'} value={form['alias']} error={errors['alias']} caption={captions['alias']} onChange={handleChange} />
             <FormControl>
               <InputLabel>Tags</InputLabel>
               <OutlinedInput

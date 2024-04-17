@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
 import { FormHelperText } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { apiFetch } from '@/components/core/backend-fetch';
+import { apiFetch, ErrorInfo, ServerMessage } from '@/core/backend-fetch';
 import { useSearchParams } from 'next/navigation';
 import { DatasourceModel } from './models/DatasourceModel';
 import { FormInput } from './form-input';
@@ -83,18 +83,27 @@ export function DatasourceDetails(): React.JSX.Element {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+    showAlert(undefined);
 
     setErrors(() => ({}));
     setLoading(true);
-    const res = await apiFetch<DatasourceModel>('datasource', 'POST', form);
+    const res = await apiFetch<DatasourceModel>('api', 'POST', form);
     setLoading(false);
 
-    if (!res.errors) {
-      console.log("redirect to edit/id");
+    const { errors } = res as ErrorInfo;
+    console.log("eeeeeeeeeeeeeeeee", res);
+    if (errors) {
+      if (Array.isArray(errors)) {
+        (errors as ServerMessage[]).forEach(err => setErrors({ [err.key]: err.message }))
+      }
+      else {
+        showAlert({ message: "Failed to create datasource. Please try again later", severity: 'error' });
+      }
       return;
     }
 
-    showAlert({ message: "Failed to create datasource. Please try again later", severity: 'error' });
+    console.log("redirect to edit/id", res);
+
   }
 
   const { dispatch: showAlert } = useContext(AlertDispatchContext);

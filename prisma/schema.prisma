@@ -18,6 +18,8 @@ model datasource {
   name            String   @db.VarChar(512)
   published       Boolean  @default(false)
   tags            String?  @db.VarChar(255)
+
+  @@index([path], map: "Path_Index")
 }
 
 model userRoles {

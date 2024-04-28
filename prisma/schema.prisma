@@ -10,6 +10,7 @@ datasource db {
 model datasource {
   id              Int      @id @default(autoincrement())
   createdByUserId String   @db.VarChar(255)
+  path            String   @unique @db.VarChar(767)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now())
   alias           String?  @db.VarChar(255)
@@ -17,4 +18,10 @@ model datasource {
   name            String   @db.VarChar(512)
   published       Boolean  @default(false)
   tags            String?  @db.VarChar(255)
+}
+
+model userRoles {
+  id    Int    @id @default(autoincrement())
+  sub   String @unique @db.VarChar(255)
+  roles String @db.MediumText
 }

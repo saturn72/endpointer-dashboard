@@ -1,8 +1,9 @@
+import { getUserIfInRole } from '@/app/security/authz-service';
 import { adapter } from '@/core/db-adapter';
 import { z } from 'zod';
 
 import { name } from '../Consts';
-import { validate } from './datasource-create-validator';
+import { validateForCreate as validateCreateData } from './datasource-create-validator';
 
 const createSchema = z.object({
   name: z
@@ -17,6 +18,11 @@ const createSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const user = await getUserIfInRole(req, 'registered');
+
+  if (!user) {
+    return new Response(null, { status: 401 });
+  }
   const body = await req.json();
 
   const modelState = await createSchema.safeParseAsync(body);
@@ -25,7 +31,11 @@ export async function POST(req: Request) {
     return Response.json({ errors }, { status: 404 });
   }
 
-  const validation = await validate(body);
+  const validation = await validateCreateData({
+    ...body,
+    userId: user.sub,
+  });
+
   if (!validation.success) {
     return new Response(null, { status: validation.status, statusText: validation.statusText });
   }
@@ -42,9 +52,4 @@ function prepareForCreate<T extends { name: string }>(datasource: T) {
     ...datasource,
     name: datasource.name.toLowerCase(),
   };
-}
-function validateForCreate(body: any) {
-  //user is permitted
-  //name is unique for user
-  throw new Error('Function not implemented.');
 }

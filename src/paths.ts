@@ -54,10 +54,10 @@ export const paths = {
   dashboard: {
     overview: '/dashboard',
     datasources: {
-      list: '/dashboard/datasources',
-      create: '/dashboard/datasources/create',
-      details: (datasourceId: string) => `/dashboard/datasources/${datasourceId}`,
-      edit: (datasourceId: string) => `/dashboard/datasources/edit/${datasourceId}`,
+      list: '/datasources',
+      create: '/datasources/create',
+      details: (datasourceId: string) => `/datasources/${datasourceId}`,
+      edit: (datasourceId: string) => `/datasources/edit/${datasourceId}`,
     },
     settings: {
       account: '/dashboard/settings/account',

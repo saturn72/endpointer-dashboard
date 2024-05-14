@@ -1,15 +1,19 @@
 export type ValidationResult = {
   success: boolean;
-  status?: number | undefined;
-  statusText?: string | undefined;
+  status: number;
+  statusText?: string | { key: string; message: string } | undefined;
 };
 
-export function success(): ValidationResult {
+export function success(status?: number): ValidationResult {
   return {
     success: true,
+    status: status || 200,
   };
 }
-export function failure(status: number, statusText: string | undefined): ValidationResult {
+export function failure(
+  status: number,
+  statusText: string | { key: string; message: string } | undefined
+): ValidationResult {
   return {
     success: false,
     status,

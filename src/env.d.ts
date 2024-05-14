@@ -1,4 +1,6 @@
 export interface Env {
+  BACKEND_URL: string;
+
   // App
   NEXT_PUBLIC_SITE_URL?: string;
   NEXT_PUBLIC_SITE_VERSION?: string;

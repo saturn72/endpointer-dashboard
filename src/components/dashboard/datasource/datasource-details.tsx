@@ -1,6 +1,10 @@
 'use client'
 
+
+import { useFormState, useFormStatus } from 'react-dom'
+
 import * as React from 'react';
+import { useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
@@ -12,12 +16,14 @@ import Typography from '@mui/material/Typography';
 import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
 import { FormHelperText } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { apiFetch, ErrorInfo, ServerMessage } from '@/core/backend-fetch';
-import { useSearchParams } from 'next/navigation';
-import { DatasourceModel } from './models/DatasourceModel';
+import { redirect, useRouter, useSearchParams } from 'next/navigation';
 import { FormInput } from './form-input';
 import { AlertDispatchContext } from '@/contexts/app/alert-context';
 import { useContext, useState, useCallback } from 'react';
+import { paths } from '@/paths';
+import { createDatasource } from './actions';
+import { getAuth } from 'firebase/auth';
+import { useUser } from '@/hooks/use-user';
 
 const captions: { [key: string]: React.JSX.Element } = {
   name: (<>
@@ -30,9 +36,21 @@ const captions: { [key: string]: React.JSX.Element } = {
   </>)
 } satisfies { [key: string]: React.JSX.Element };
 
+const initialState = {};
+
 
 export function DatasourceDetails(): React.JSX.Element {
 
+  const [token, setToken] = useState<string>('');
+
+  useEffect(() => {
+    getAuth().currentUser?.getIdToken()
+      .then((t: string | undefined) => setToken(t as string));
+  }, []);
+
+
+
+  const [state, formAction] = useFormState(createDatasource, initialState);
   const searchParams = useSearchParams();
   const f = {
     name: searchParams.get("name") ?? '',
@@ -81,35 +99,67 @@ export function DatasourceDetails(): React.JSX.Element {
     });
   }, []);
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    showAlert(undefined);
+  // async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+  //   event.preventDefault();
+  //   showAlert(undefined);
 
-    setErrors(() => ({}));
-    setLoading(true);
-    const res = await apiFetch<DatasourceModel>('api', 'POST', form);
-    setLoading(false);
+  //   setErrors(() => ({}));
+  //   setLoading(true);
+  //   const { uri, init } = await buildApiFetchData('api', 'POST', form);
+  //   const res = await fetch(uri, init)
+  //   processServerResponse(res);
+  //   setLoading(false);
+  // }
 
-    const { errors } = res as ErrorInfo;
-    console.log("eeeeeeeeeeeeeeeee", res);
-    if (errors) {
-      if (Array.isArray(errors)) {
-        (errors as ServerMessage[]).forEach(err => setErrors({ [err.key]: err.message }))
-      }
-      else {
-        showAlert({ message: "Failed to create datasource. Please try again later", severity: 'error' });
-      }
-      return;
+  async function processServerResponse(res: Response): Promise<void> {
+    // console.log("this is the resssssssss", res)
+    // const errors = res.errors;
+    // if (errors) {
+    //   if (Array.isArray(errors)) {
+    //     (errors as ServerMessage[]).forEach(err => setErrors({ [err.key]: err.message }))
+    //   }
+    //   else {
+    //     showAlert({ message: "Failed to create datasource. Please try again later", severity: 'error' });
+    //   }
+    //   return;
+    // }
+
+    // return Response.redirect('/errors/not-authorized');
+
+    if (res.status == 401 || res.status == 403) {
+      console.log("this is401/403", paths.notAuthorized)
+      useRouter().push(paths.notAuthorized);
     }
+    console.log("this is the response", res)
+    const body = await res.json();
+    console.log("this is the response code", body)
+    // if (res.redirected)
+    if (!res.ok) {
+      if (res.status == 401) {
 
-    console.log("redirect to edit/id", res);
+        return redirect(paths.notAuthorized);
+      }
+    }
+    // const data = await res.json();
 
+    // console.log("this is the res's status", res.status);
+
+    // return { data };
+    // console.log("this is res in details", res);
+
+
+    // console.log("redirect to edit/id", res);
+    // throw new Error('Function not implemented.');
   }
 
+
   const { dispatch: showAlert } = useContext(AlertDispatchContext);
+  const { pending } = useFormStatus();
+  const createDatasourceWithArgs = createDatasource.bind(null, token);
 
   return (
-    <form onSubmit={onSubmit} >
+    <form action={createDatasourceWithArgs} >
+      {/* <form onSubmit={onSubmit} > */}
       <Stack spacing={4}>
         <Stack spacing={3}>
           <div>
@@ -153,7 +203,7 @@ export function DatasourceDetails(): React.JSX.Element {
           </Stack>
         </Stack>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
-          <LoadingButton loading={loading} type='submit' endIcon={<ArrowRightIcon />} variant="contained">
+          <LoadingButton loading={pending} type='submit' endIcon={<ArrowRightIcon />} variant="contained">
             Next
           </LoadingButton>
         </Stack>
@@ -161,3 +211,4 @@ export function DatasourceDetails(): React.JSX.Element {
     </form >
   );
 }
+

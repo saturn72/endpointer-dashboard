@@ -1,28 +1,31 @@
-import { UserRole } from '@/app/security/types';
+import { User, UserRole } from '@/app/security/types';
 import admin from 'firebase-admin';
+import { App, getApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 
 import { getUserRoles } from './user-role-service';
-
-export type User = {
-  sub: string;
-  email: string;
-};
 
 const pathToServiceAccountKey = process.env.SERVICE_ACCOUNT_KEY;
 if (!!!pathToServiceAccountKey) {
   new Error("Failed to get env. varaiable: 'SERVICE_ACCOUNT_KEY'");
 }
-const app = admin.initializeApp({
-  credential: admin.credential.cert(<string>pathToServiceAccountKey),
-});
+
+let e: App | null = null;
+try {
+  e = getApp('firebase-admin');
+} catch (err) {}
+const app =
+  e ??
+  admin.initializeApp(
+    {
+      credential: admin.credential.cert(<string>pathToServiceAccountKey),
+    },
+    'firebase-admin'
+  );
 
 const auth = getAuth(app);
 
-export async function getUser(req: Request, checkRevoked: boolean): Promise<User | undefined> {
-  const authHeader = req.headers.get('Authorization');
-
-  const token = authHeader?.split(' ')[1];
+export async function getUser(token: string, checkRevoked: boolean): Promise<User | undefined> {
   if (!token) {
     return undefined;
   }
@@ -30,12 +33,12 @@ export async function getUser(req: Request, checkRevoked: boolean): Promise<User
   return user ? (user as User) : undefined;
 }
 
-export async function getUserIfInRole(req: Request, userRole: UserRole): Promise<User | undefined> {
-  const user = await getUser(req, true);
+export async function getUserIfInRole(token: string, userRole: UserRole): Promise<User | undefined> {
+  const user = await getUser(token, true);
   if (!user) {
     return undefined;
   }
 
-  const permissions = await getUserRoles(user.sub);
-  return permissions.includes(userRole) ? user : undefined;
+  const roles = await getUserRoles(user.sub);
+  return roles.includes(userRole) ? user : undefined;
 }

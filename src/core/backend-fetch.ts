@@ -1,4 +1,7 @@
+import { NextResponse } from 'next/server';
 import { getAuth } from 'firebase/auth';
+
+import { paths } from '@/paths';
 
 export type ServerMessage = { key: string; message: string; code?: number | string };
 
@@ -8,19 +11,19 @@ export type ErrorInfo = {
 
 type methodOptions = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
-export async function apiFetch<T>(
+const backendUrl = process.env.BACKEND_URL;
+
+export async function apiFetch(
   uri: string,
   method: methodOptions = 'GET',
   body: any
-): Promise<{ data: T | any } | ErrorInfo> {
+): Promise<(Response & ErrorInfo) | ErrorInfo> {
   let t = uri;
   while (t?.startsWith('/')) {
     t = t.substring(1);
   }
   const b = body ? JSON.stringify(body) : undefined;
   const jwt = await getAuth().currentUser?.getIdToken();
-
-  console.log('this is the jwt', jwt);
 
   const o = {
     headers: {
@@ -33,14 +36,12 @@ export async function apiFetch<T>(
 
   try {
     const res = await fetch(t, o);
-    const data = await res.json();
-    console.log('this is the data', data);
 
-    if (!res.ok) {
-      return { errors: data.errors };
+    if (res.status == 401 || res.status == 403) {
+      NextResponse.redirect(new URL(paths.notAuthorized));
     }
 
-    return { data };
+    return res;
   } catch (err: any) {
     return {
       errors: err.toString(),

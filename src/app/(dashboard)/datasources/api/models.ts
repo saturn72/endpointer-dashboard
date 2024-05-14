@@ -7,8 +7,12 @@ export interface DatasourceCreateRequest {
 
 export interface Datasource {
   id: number;
-  name: string;
   alias: string | undefined;
+  comment?: string | null;
+  createdByUserId: string;
+  createdAtUtc?: Date;
+  name: string;
+  path: string;
+  published: boolean;
   tags: string | undefined;
-  userId: string;
 }

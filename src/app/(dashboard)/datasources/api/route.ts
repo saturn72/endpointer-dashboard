@@ -1,9 +1,16 @@
+import { NextApiResponse } from 'next';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { getUserIfInRole } from '@/app/security/authz-service';
-import { adapter } from '@/core/db-adapter';
+import { isPermitted } from '@/app/security/permission-service';
 import { z } from 'zod';
+
+import { paths } from '@/paths';
 
 import { name } from '../Consts';
 import { validateForCreate as validateCreateData } from './datasource-create-validator';
+import { createDatasource } from './datasource-service';
+import { Datasource } from './models';
 
 const createSchema = z.object({
   name: z
@@ -18,38 +25,38 @@ const createSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const user = await getUserIfInRole(req, 'registered');
+  // const user = await getUserIfInRole(req, 'registered');
 
-  if (!user) {
-    return new Response(null, { status: 401 });
-  }
-  const body = await req.json();
+  // redirect('/errors/not-authorized');
+  return Response.json(null, { status: 401 });
 
-  const modelState = await createSchema.safeParseAsync(body);
-  if (!modelState.success) {
-    const errors = modelState.error.errors.map((err) => ({ key: err.path[0], message: err.message }));
-    return Response.json({ errors }, { status: 404 });
-  }
+  //delete after check - START
+  //delete after check - END
+  // if (!user) {
+  //   return Response.json(null, { status: 401 });
+  // }
+  // const permitted = await isPermitted(user, 'datasource-create');
+  // if (!permitted) {
+  //   return new Response(null, { status: 403 });
+  // }
 
-  const validation = await validateCreateData({
-    ...body,
-    userId: user.sub,
-  });
+  // const body = await req.json();
+  // const modelState = await createSchema.safeParseAsync(body);
+  // if (!modelState.success) {
+  //   const errors = modelState.error.errors.map((err) => ({ key: err.path[0], message: err.message }));
+  //   return Response.json({ errors }, { status: 404 });
+  // }
 
-  if (!validation.success) {
-    return new Response(null, { status: validation.status, statusText: validation.statusText });
-  }
+  // const validation = await validateCreateData({
+  //   ...body,
+  //   userId: user.sub,
+  // });
 
-  const data = prepareForCreate(body);
-  const c = await adapter.datasource.create({
-    data,
-  });
+  // if (!validation.success) {
+  //   return Response.json({ errors: validation.statusText }, { status: validation.status });
+  // }
 
-  return new Response(JSON.stringify(c));
-}
-function prepareForCreate<T extends { name: string }>(datasource: T) {
-  return {
-    ...datasource,
-    name: datasource.name.toLowerCase(),
-  };
+  // const data = body satisfies Datasource;
+  // const c = await createDatasource(user, data);
+  // redirect(`${c.id}`);
 }

@@ -9,13 +9,17 @@ sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh |
 source ~/.bashrc
 nvm install node
 
-# add pnpm
-sudo wget -qO- https://get.pnpm.io/install.sh | sh -
+npm install next@latest -g
+npm install pnpm -g
 source ~/.bashrc
 
 #get source code
 sudo mkdir -p /var/git
 cd /var/git
-sudo git clone https://github.com/saturn72/endpointer.git
-cd /var/git/endpointer
-sudo git pull
+sudo git clone https://github.com/saturn72/endpointer-dashboard.git
+cd /var/git/endpointer-dashboard
+
+sudo chmod -R 777 /var/git/endpointer-dashboard
+#make directory public
+pnpm install
+

@@ -25,12 +25,8 @@ export const layoutConfig = {
     {
       key: 'endpoint-management',
       title: 'Endpoints Management',
-      items: [
-        { key: 'datasources', 
-        title: 'Datasources', 
-        href: paths.dashboard.datasources.list, icon: 'database' },
-    ]
-  },
+      items: [{ key: 'datasources', title: 'Datasources', href: paths.dashboard.datasources.list, icon: 'database' }],
+    },
     {
       key: 'general',
       title: 'General',

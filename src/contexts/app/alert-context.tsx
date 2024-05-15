@@ -1,5 +1,5 @@
-import { Alert, Box, Collapse } from '@mui/material';
 import { createContext, useEffect, useReducer } from 'react';
+import { Alert, Box, Collapse } from '@mui/material';
 
 type severity = 'success' | 'info' | 'warning' | 'error';
 
@@ -11,28 +11,25 @@ type AlertInfo = {
 
 type AlertContextType = {
   alert?: AlertInfo;
-}
+};
 
 type AlertDispatchContextType = {
   dispatch: React.Dispatch<AlertInfo | undefined>;
-}
+};
 
 export const AlertContext = createContext<AlertContextType>({} as AlertContextType);
 
 export const AlertDispatchContext = createContext<AlertDispatchContextType>({} as AlertDispatchContextType);
 
-function reducer(
-  alert: AlertInfo | undefined,
-  alertInfo: AlertInfo | undefined) {
-
+function reducer(alert: AlertInfo | undefined, alertInfo: AlertInfo | undefined) {
   if (!alertInfo) {
     return undefined;
   }
 
   const ai = {
-    severity: alertInfo.severity || "info",
+    severity: alertInfo.severity || 'info',
     message: alertInfo.message,
-    duration: alertInfo.duration || 5000
+    duration: alertInfo.duration || 5000,
   };
 
   return ai;
@@ -43,7 +40,7 @@ export function AlertContextProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     //error is not auto-clear
-    if (alert && alert.severity != "error") {
+    if (alert && alert.severity != 'error') {
       setTimeout(() => dispatch(undefined), alert.duration);
     }
   }, [alert]);
@@ -53,11 +50,13 @@ export function AlertContextProvider({ children }: { children: React.ReactNode }
       <AlertDispatchContext.Provider value={{ dispatch }}>
         <Box sx={{ width: '100%' }}>
           <Collapse in={alert && alert != null}>
-            <Alert severity={alert?.severity} onClose={() => dispatch(undefined)}>{alert?.message}</Alert>
+            <Alert severity={alert?.severity} onClose={() => dispatch(undefined)}>
+              {alert?.message}
+            </Alert>
           </Collapse>
         </Box>
         {children}
       </AlertDispatchContext.Provider>
-    </AlertContext.Provider >
+    </AlertContext.Provider>
   );
 }

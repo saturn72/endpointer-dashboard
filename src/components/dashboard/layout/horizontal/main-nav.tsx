@@ -323,15 +323,15 @@ function NavItem({
         {...(isBranch
           ? { role: 'button' }
           : {
-            ...(href
-              ? {
-                component: external ? 'a' : RouterLink,
-                href,
-                target: external ? '_blank' : undefined,
-                rel: external ? 'noreferrer' : undefined,
-              }
-              : { role: 'button' }),
-          })}
+              ...(href
+                ? {
+                    component: external ? 'a' : RouterLink,
+                    href,
+                    target: external ? '_blank' : undefined,
+                    rel: external ? 'noreferrer' : undefined,
+                  }
+                : { role: 'button' }),
+            })}
         sx={{
           alignItems: 'center',
           borderRadius: 1,
@@ -449,15 +449,15 @@ function DropdownItem({
         {...(isBranch
           ? { role: 'button' }
           : {
-            ...(href
-              ? {
-                component: external ? 'a' : RouterLink,
-                href,
-                target: external ? '_blank' : undefined,
-                rel: external ? 'noreferrer' : undefined,
-              }
-              : { role: 'button' }),
-          })}
+              ...(href
+                ? {
+                    component: external ? 'a' : RouterLink,
+                    href,
+                    target: external ? '_blank' : undefined,
+                    rel: external ? 'noreferrer' : undefined,
+                  }
+                : { role: 'button' }),
+            })}
         sx={{
           alignItems: 'center',
           borderRadius: 1,

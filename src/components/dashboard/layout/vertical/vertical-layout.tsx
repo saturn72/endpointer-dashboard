@@ -4,12 +4,12 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import GlobalStyles from '@mui/material/GlobalStyles';
 
+import { AlertContextProvider } from '@/contexts/app/alert-context';
 import { useSettings } from '@/hooks/use-settings';
 
 import { layoutConfig } from '../config';
 import { MainNav } from './main-nav';
 import { SideNav } from './side-nav';
-import { AlertContextProvider } from '@/contexts/app/alert-context';
 
 export interface VerticalLayoutProps {
   children?: React.ReactNode;
@@ -44,7 +44,7 @@ export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Ele
         <SideNav color={settings.navColor} items={layoutConfig.navItems} />
         <Box sx={{ display: 'flex', flex: '1 1 auto', flexDirection: 'column', pl: { lg: 'var(--SideNav-width)' } }}>
           <MainNav items={layoutConfig.navItems} />
-          < AlertContextProvider>
+          <AlertContextProvider>
             <Box
               component="main"
               sx={{
@@ -64,6 +64,6 @@ export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Ele
           </AlertContextProvider>
         </Box>
       </Box>
-    </React.Fragment >
+    </React.Fragment>
   );
 }

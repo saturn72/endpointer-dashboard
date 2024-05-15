@@ -7,7 +7,7 @@ import { ChatsCircle as ChatsCircleIcon } from '@phosphor-icons/react/dist/ssr/C
 import { CreditCard as CreditCardIcon } from '@phosphor-icons/react/dist/ssr/CreditCard';
 import { Cube as CubeIcon } from '@phosphor-icons/react/dist/ssr/Cube';
 import { CurrencyEth as CurrencyEthIcon } from '@phosphor-icons/react/dist/ssr/CurrencyEth';
-import {Database as DatabaseIcon} from '@phosphor-icons/react/dist/ssr/Database';
+import { Database as DatabaseIcon } from '@phosphor-icons/react/dist/ssr/Database';
 import { EnvelopeSimple as EnvelopeSimpleIcon } from '@phosphor-icons/react/dist/ssr/EnvelopeSimple';
 import { File as FileIcon } from '@phosphor-icons/react/dist/ssr/File';
 import { FileDashed as FileDashedIcon } from '@phosphor-icons/react/dist/ssr/FileDashed';
@@ -38,7 +38,7 @@ export const icons = {
   'chats-circle': ChatsCircleIcon,
   'credit-card': CreditCardIcon,
   'currency-eth': CurrencyEthIcon,
-  'database': DatabaseIcon,
+  database: DatabaseIcon,
   'envelope-simple': EnvelopeSimpleIcon,
   'file-dashed': FileDashedIcon,
   'file-x': FileXIcon,

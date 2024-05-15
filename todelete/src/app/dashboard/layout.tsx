@@ -4,16 +4,15 @@ import Container from '@mui/material/Container';
 import GlobalStyles from '@mui/material/GlobalStyles';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
+import Alert from '@/components/core/alert';
 import { MainNav } from '@/components/dashboard/layout/main-nav';
 import { SideNav } from '@/components/dashboard/layout/side-nav';
-import Alert from '@/components/core/alert';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps): React.JSX.Element {
-
   return (
     <AuthGuard>
       <GlobalStyles
@@ -48,6 +47,6 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
           </main>
         </Box>
       </Box>
-    </AuthGuard >
+    </AuthGuard>
   );
 }

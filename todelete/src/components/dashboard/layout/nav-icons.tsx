@@ -10,7 +10,7 @@ import { XSquare } from '@phosphor-icons/react/dist/ssr/XSquare';
 export const navIcons = {
   'chart-pie': ChartPieIcon,
   'gear-six': GearSixIcon,
-  'database': Database,
+  database: Database,
   'plugs-connected': PlugsConnectedIcon,
   'x-square': XSquare,
   user: UserIcon,

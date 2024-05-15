@@ -5,9 +5,9 @@ export const paths = {
     overview: '/dashboard',
     datasources: {
       list: '/dashboard/datasources',
-      create:'/dashboard/datasources/create',
-      details: (datasourceId:number) => `/dashboard/datasources/${datasourceId}`,
-      },
+      create: '/dashboard/datasources/create',
+      details: (datasourceId: number) => `/dashboard/datasources/${datasourceId}`,
+    },
     account: '/dashboard/account',
     customers: '/dashboard/customers',
     integrations: '/dashboard/integrations',

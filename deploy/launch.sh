@@ -22,4 +22,10 @@ cd /var/git/endpointer-dashboard
 sudo chmod -R 777 /var/git/endpointer-dashboard
 #make directory public
 pnpm install
+pnpm build
 
+#build and copy for production
+sudo mkdir -p /srv/www/endpointer-dashboard
+sudo cp -R /var/git/endpointer-dashboard /srv/www/endpointer-dashboard
+
+next start

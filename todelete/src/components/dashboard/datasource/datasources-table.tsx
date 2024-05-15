@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Datasource } from '@/domain/datasources';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,7 +18,6 @@ import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
 
 import { useSelection } from '@/hooks/use-selection';
-import { Datasource } from '@/domain/datasources';
 
 function noop(): void {
   // do nothing

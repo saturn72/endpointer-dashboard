@@ -1,8 +1,7 @@
-export function DatasourceById({id}:{id:string}) {
-
+export function DatasourceById({ id }: { id: string }) {
   return (
     <>
-    <h1>{id}</h1>
+      <h1>{id}</h1>
     </>
     // <form action={formAction}>
     //   <Card>
@@ -12,10 +11,10 @@ export function DatasourceById({id}:{id:string}) {
     //       <Grid container spacing={3}>
     //         <Grid md={6} xs={12}>
     //           <FormControl fullWidth required>
-                
+
     //             <TextField
     //               label="Name"
-    //               name="name" 
+    //               name="name"
     //               helperText="Datasource's name"
     //               required
     //               />
@@ -23,7 +22,7 @@ export function DatasourceById({id}:{id:string}) {
     //         </Grid>
     //         <Grid md={6} xs={12}>
     //           <FormControl fullWidth>
-    //             <TextField 
+    //             <TextField
     //             label="Alias"
     //             name="alias"
     //             helperText="Nickname for this datasource."/>

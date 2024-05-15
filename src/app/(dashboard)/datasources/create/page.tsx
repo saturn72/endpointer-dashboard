@@ -14,8 +14,8 @@ import { DatasourceCreateForm } from '@/components/dashboard/datasource/datasour
 export const metadata = { title: `Create | Datasources | ${config.site.name}` } satisfies Metadata;
 
 export default function Page(): React.JSX.Element {
-return (
-  <Box
+  return (
+    <Box
       sx={{
         maxWidth: 'var(--Content-maxWidth)',
         m: 'var(--Content-margin)',

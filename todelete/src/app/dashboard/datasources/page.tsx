@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { Metadata } from 'next';
+import { getDatasources } from '@/services/datasource';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -8,18 +9,16 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
 
 import { config } from '@/config';
+import { paths } from '@/paths';
 import { DatasourcesFilters } from '@/components/dashboard/datasource/datasources-filters';
 import { DatasourcesTable } from '@/components/dashboard/datasource/datasources-table';
-import { getDatasources } from '@/services/datasource';
-import { paths } from '@/paths';
 
 export const metadata = { title: `Datasources | ${config.site.name}` } satisfies Metadata;
-
 
 export default async function Page() {
   const page = 0;
   const rowsPerPage = 5;
-  const datasources = await getDatasources(page, rowsPerPage)
+  const datasources = await getDatasources(page, rowsPerPage);
 
   return (
     <Stack spacing={3}>
@@ -36,22 +35,17 @@ export default async function Page() {
           </Stack>
         </Stack>
         <div>
-          <Button 
+          <Button
             href={paths.dashboard.datasources.create}
             startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />}
-            variant="contained">
+            variant="contained"
+          >
             Add
           </Button>
         </div>
       </Stack>
       <DatasourcesFilters />
-      <DatasourcesTable
-        count={datasources.length}
-        page={page}
-        rows={datasources}
-        rowsPerPage={rowsPerPage}
-      />
+      <DatasourcesTable count={datasources.length} page={page} rows={datasources} rowsPerPage={rowsPerPage} />
     </Stack>
   );
 }
-

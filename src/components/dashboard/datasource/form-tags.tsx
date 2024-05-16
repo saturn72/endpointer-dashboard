@@ -11,31 +11,19 @@ import {
 } from '@mui/material';
 
 export function FormTags({
-  value,
-
-  // label,
-  // name,
-  // required,
-  // error,
-  // caption,
-  // placeholder,
-  // onChange,
+  initValue,
+  onChange,
+  label,
+  helperText
 }: {
-  value: string;
-
-
-
-  // label: string;
-  // name: string;
-  // required?: boolean;
-  // error: string | undefined;
-  // caption: string | React.JSX.Element;
-  // placeholder?: string;
-  // onChange?: (e: any) => void;
+  initValue?: string;
+  onChange: (e: any) => void;
+  label?: string;
+  helperText?: string;
 }): React.JSX.Element {
 
-  const values = value.split(',').filter(i => i);
-  const initVal: Set<string> = values.length > 0 ? new Set(values) : new Set();
+  const values = initValue?.split(',')?.filter(i => i) ?? [];
+  const initVal: Set<string> = new Set(values);
   const [tags, setTags] = useState<Set<string>>(initVal);
   const [tagValue, setTagValue] = useState<string>('');
 
@@ -46,8 +34,8 @@ export function FormTags({
     setTags((prevState) => {
       const copy = new Set(prevState);
       copy.add(tagValue);
-      const arr = Array.from(copy);
-      value = arr.join(',');
+
+      onChange(Array.from(copy).join(','));
 
       return copy;
     });
@@ -60,7 +48,9 @@ export function FormTags({
     setTags((prevState) => {
       const copy = new Set(prevState);
       copy.delete(deletedTag);
-      console.log('the value is ', copy);
+
+      onChange(Array.from(copy).join(','));
+
       return copy;
     });
   }, []);
@@ -68,7 +58,7 @@ export function FormTags({
   return (
     <>
       <FormControl>
-        <InputLabel>Tags</InputLabel>
+        <InputLabel>{label || 'Tags'}</InputLabel>
         <OutlinedInput
           value={tagValue}
           endAdornment={
@@ -89,9 +79,9 @@ export function FormTags({
             }
           }}
         />
-        <FormHelperText>
-          <strong>Optional.</strong>&nbsp;
-        </FormHelperText>
+        {helperText && <FormHelperText>
+          <strong>{helperText}</strong>&nbsp;
+        </FormHelperText>}
       </FormControl>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
         {Array.from(tags.values()).map((tag) => (

@@ -134,8 +134,10 @@ export function DatasourceDetails(): React.JSX.Element {
               placeholder={texts.alias.placeholder}
               onChange={handleChange}
             />
-            <FormTags value={form['tags']} />
-            TTTTTTTTTTTTTTTTTTT{form['tags']}tttttttttttttttt
+            <FormTags
+              initValue={f.tags}
+              helperText='Optional.'
+              onChange={tags => form['tags'] = tags} />
           </Stack>
         </Stack>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>

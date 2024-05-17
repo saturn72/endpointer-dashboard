@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   Chip,
@@ -11,19 +11,19 @@ import {
 } from '@mui/material';
 
 export function FormTags({
-  initValue,
-  onChange,
+  value,
   label,
-  helperText
+  helperText,
+  onChange
 }: {
-  initValue?: string;
-  onChange: (e: any) => void;
+  value?: string;
   label?: string;
   helperText?: string;
+  onChange: (value: string) => void;
 }): React.JSX.Element {
 
-  const values = initValue?.split(',')?.filter(i => i) ?? [];
-  const initVal: Set<string> = new Set(values);
+  const initTags = value?.split(',')?.filter(i => i) ?? [];
+  const initVal: Set<string> = new Set(initTags);
   const [tags, setTags] = useState<Set<string>>(initVal);
   const [tagValue, setTagValue] = useState<string>('');
 
@@ -34,23 +34,20 @@ export function FormTags({
     setTags((prevState) => {
       const copy = new Set(prevState);
       copy.add(tagValue);
-
-      onChange(Array.from(copy).join(','));
-
       return copy;
     });
 
     setTagValue('');
   }, [tagValue]);
 
+  useEffect(() => {
+    onChange(Array.from(tags).join(','));
+  }, [tags]);
 
   const handleTagDelete = useCallback((deletedTag: string) => {
     setTags((prevState) => {
       const copy = new Set(prevState);
       copy.delete(deletedTag);
-
-      onChange(Array.from(copy).join(','));
-
       return copy;
     });
   }, []);
@@ -74,8 +71,6 @@ export function FormTags({
             setTagValue(value);
             if (value.endsWith(',') || value.endsWith(' ')) {
               handleTagAdd();
-              setTagValue('');
-              // event.target.value = '';
             }
           }}
         />

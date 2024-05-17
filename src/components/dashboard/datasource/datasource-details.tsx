@@ -17,6 +17,7 @@ import { createDatasource } from './actions';
 import { FormInput } from './form-input';
 import texts from './texts';
 import { FormTags } from './form-tags';
+import { preventContextMenu } from '@fullcalendar/core/internal';
 
 const initialState = {};
 
@@ -33,17 +34,30 @@ export function DatasourceDetails(): React.JSX.Element {
 
   // const [state, formAction] = useFormState(createDatasource, initialState);
   const searchParams = useSearchParams();
+
   const f = {
     name: searchParams.get('name') ?? '',
     alias: searchParams.get('alias') ?? '',
     tags: searchParams.get('tags') ?? '',
   };
-  const [form, setForm] = useState<{ [key: string]: string }>(f);
+  const [form, setForm] = useState<{
+    name: string,
+    alias: string,
+    tags: string,
+  }>(f);
+
 
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const s: Set<string> = f.tags.trim().length > 0 ? new Set(f.tags.split(',')) : new Set();
+  const onTagsChanged = (tags: string) => {
+    setForm(prev => {
+      return {
+        ...prev,
+        tags
+      };
+    });
+  };
 
   const handleChange = (e: { target: { name: any; value: any } }) => {
     setForm((prevState) => ({
@@ -135,9 +149,11 @@ export function DatasourceDetails(): React.JSX.Element {
               onChange={handleChange}
             />
             <FormTags
-              initValue={f.tags}
+              value={form.tags}
               helperText='Optional.'
-              onChange={tags => form['tags'] = tags} />
+              onChange={onTagsChanged}
+            />
+            <strong style={{ color: 'red' }}>{form.tags}</strong>
           </Stack>
         </Stack>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
@@ -146,6 +162,6 @@ export function DatasourceDetails(): React.JSX.Element {
           </LoadingButton>
         </Stack>
       </Stack>
-    </form>
+    </form >
   );
 }

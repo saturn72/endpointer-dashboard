@@ -10,22 +10,11 @@ import { UserResources } from '@/app/api/datasource/models';
 
 import { config } from '@/config';
 import { paths } from '@/paths';
-import { DatasourceCreateForm } from '@/components/dashboard/datasource/datasource-create-form';
-import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
+import { DatasourceCreateForm } from '@/components/dashboard/datasource/(createOrEdit)/datasource-create-form';
 
 export const metadata = { title: `Create | Datasources | ${config.site.name}` } satisfies Metadata;
 
-
-export const getServerSideProps = (async () => {
-  const res = await fetch('/api/datasource')
-  const data: UserResources = await res.json();
-  console.log("log", data);
-  return { props: { data } }
-}) satisfies GetServerSideProps<{ data: UserResources }>
-
-export default function Page({
-  data
-}: InferGetServerSidePropsType<typeof getServerSideProps>): React.JSX.Element {
+export default function Page(): React.JSX.Element {
   return (
     <Box
       sx={{

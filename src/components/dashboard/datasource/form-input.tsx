@@ -5,7 +5,6 @@ import {
   InputLabel,
   OutlinedInput
 } from '@mui/material';
-import formRules from './form-rules';
 
 export function FormInput({
   label,
@@ -16,6 +15,7 @@ export function FormInput({
   caption,
   placeholder,
   onBlur,
+  onFocus,
   onChange,
 }: {
   label: string;
@@ -26,6 +26,7 @@ export function FormInput({
   caption: string | React.JSX.Element;
   placeholder?: string;
   onBlur?: (e: any) => void;
+  onFocus?: (e: any) => void;
   onChange?: (val: string) => void;
 }): React.JSX.Element {
   return (
@@ -41,6 +42,7 @@ export function FormInput({
           e.target.value = 'abcd';//e.target.value.trim();
           onBlur?.(e);
         }}
+        onFocus={onFocus}
       />
       <FormHelperText error={error != undefined}>{error || caption}</FormHelperText>
     </FormControl>

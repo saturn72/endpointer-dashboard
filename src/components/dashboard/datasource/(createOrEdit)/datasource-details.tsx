@@ -12,14 +12,14 @@ import { getAuth } from 'firebase/auth';
 import { useFormStatus } from 'react-dom';
 import { paths } from '@/paths';
 import { AlertDispatchContext } from '@/contexts/app/alert-context';
-import { createDatasource } from './actions';
-import { FormInput } from './form-input';
-import texts from './texts';
-import { FormTags } from './form-tags';
+import { createDatasource } from '../actions';
+import { FormInput } from '../form-input';
+import texts from '../texts';
+import { FormTags } from '../form-tags';
 import { preventContextMenu } from '@fullcalendar/core/internal';
 import { string } from 'zod';
-import formRules from './form-rules';
 import { UserResources } from '@/app/api/datasource/models';
+import { nameValidator } from './validators';
 
 type FormType = {
   name?: string,
@@ -27,19 +27,26 @@ type FormType = {
   tags?: string[]
 };
 
-export function DatasourceDetails({
-  data,
-}: {
-  data: UserResources
-}) {
+
+export const getData = (async (): Promise<UserResources> => {
+  const res = await fetch('/api/datasource')
+  return await res.json();
+});
+
+export function DatasourceDetails() {
   const [token, setToken] = useState<string>('');
 
   useEffect(() => {
+    setLoading(true);
+    getData()
+      .then((d: UserResources) => setData(d));
+
     getAuth()
       .currentUser?.getIdToken()
       .then((t: string | undefined) => {
         setToken(t as string);
       });
+    setLoading(false);
   }, []);
 
   // const [state, formAction] = useFormState(createDatasource, initialState);
@@ -51,7 +58,8 @@ export function DatasourceDetails({
     tags: Array.from(searchParams.get('tags') ?? ''),
   };
   const [form, setForm] = useState<FormType>(f)
-  const [loading, setLoading] = useState<boolean>(false);
+  const [data, setData] = useState<UserResources>({} as UserResources);
+  const [loading, setLoading] = useState<boolean>(true);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleTagChange = (tags: string[]) => {
@@ -60,41 +68,29 @@ export function DatasourceDetails({
       tags
     }));
   };
-  const onBlurName = (e: any) => {
-    const name: string = e.target.value.trim().toLowerCase();
 
-    setErrors({})
-    const nameRules = formRules.name;
-
-    const nameLength = name.length;
-    if (nameLength < nameRules.minLength) {
-      return setErrors({ name: nameRules.minLengthMessage })
-    }
-
-    if (nameLength > nameRules.maxLength) {
-      return setErrors({ name: nameRules.maxLengthMessage })
-    }
-    if (!nameRules.startsWithLetter.test(name)) {
-      return setErrors({ name: nameRules.maxLengthMessage })
-    }
-
-    if (!nameRules.doesNotEndsWithHyphen.test(name)) {
-      return setErrors({ name: nameRules.doesNotEndsWithHyphenMessage })
-    }
-
-    if (!nameRules.noMoreThanSingleHyphenInARow.test(name)) {
-      return setErrors({ name: nameRules.noMoreThanSingleHyphenInARowMessage })
-    }
-
-    console.log(data);
-    const existDatasourcesNames: string[] = data.datasources.map(s => {
-      return s.name;
+  const removeErrorByKey = (key: string): void => {
+    setErrors(prev => {
+      const c = { ...prev };
+      delete c[key];
+      return c;
     });
+  };
 
-    if (existDatasourcesNames.includes(name)) {
-      return setErrors({ name: nameRules.duplicateMessage })
-    }
-  }
+
+  const onBlurName = () => {
+    setErrors({})
+    const n = form.name?.trim().toLowerCase();
+    const message = nameValidator(
+      n!,
+      () => data.datasources.map((s) => {
+        return s.name;
+      }));
+    return setErrors(message ? { name: message } : {})
+  };
+
+
+
   const handleChange = (key: string, value: string) => {
     setForm((prevState) => ({
       ...prevState,
@@ -161,6 +157,7 @@ export function DatasourceDetails({
               caption={texts.name.caption}
               placeholder={texts.name.placeholder}
               required
+              onFocus={() => removeErrorByKey("name")}
               onBlur={onBlurName}
               onChange={val => handleChange('name', val)}
             />
@@ -169,6 +166,7 @@ export function DatasourceDetails({
               name={'alias'}
               value={form.alias || ''}
               error={errors['alias']}
+              onFocus={() => removeErrorByKey("alias")}
               caption={texts.alias.caption}
               placeholder={texts.alias.placeholder}
               onChange={val => handleChange('alias', val)}

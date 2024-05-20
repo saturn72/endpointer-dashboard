@@ -16,10 +16,9 @@ import { createDatasource } from '../actions';
 import { FormInput } from '../form-input';
 import texts from '../texts';
 import { FormTags } from '../form-tags';
-import { preventContextMenu } from '@fullcalendar/core/internal';
-import { string } from 'zod';
 import { UserResources } from '@/app/api/datasource/models';
 import { nameValidator } from './validators';
+import { simpleFetch } from '@/core/backend-fetch';
 
 type FormType = {
   name?: string,
@@ -28,28 +27,23 @@ type FormType = {
 };
 
 
-export const getData = (async (): Promise<UserResources> => {
-  const res = await fetch('/api/datasource')
-  return await res.json();
-});
-
 export function DatasourceDetails() {
   const [token, setToken] = useState<string>('');
 
   useEffect(() => {
     setLoading(true);
-    getData()
-      .then((d: UserResources) => setData(d));
-
     getAuth()
       .currentUser?.getIdToken()
       .then((t: string | undefined) => {
         setToken(t as string);
       });
+
+    simpleFetch('/api/datasource')
+      .then((d: UserResources) => setData(d));
+
     setLoading(false);
   }, []);
 
-  // const [state, formAction] = useFormState(createDatasource, initialState);
   const searchParams = useSearchParams();
 
   const f: FormType = {
@@ -57,6 +51,7 @@ export function DatasourceDetails() {
     alias: searchParams.get('alias') ?? '',
     tags: Array.from(searchParams.get('tags') ?? ''),
   };
+
   const [form, setForm] = useState<FormType>(f)
   const [data, setData] = useState<UserResources>({} as UserResources);
   const [loading, setLoading] = useState<boolean>(true);
@@ -77,9 +72,9 @@ export function DatasourceDetails() {
     });
   };
 
-
   const onBlurName = () => {
-    setErrors({})
+    removeErrorByKey('name');
+
     const n = form.name?.trim().toLowerCase();
     const message = nameValidator(
       n!,
@@ -89,53 +84,12 @@ export function DatasourceDetails() {
     return setErrors(message ? { name: message } : {})
   };
 
-
-
   const handleChange = (key: string, value: string) => {
     setForm((prevState) => ({
       ...prevState,
       [key]: value,
     }));
   };
-
-  async function processServerResponse(res: Response): Promise<void> {
-    // console.log("this is the resssssssss", res)
-    // const errors = res.errors;
-    // if (errors) {
-    //   if (Array.isArray(errors)) {
-    //     (errors as ServerMessage[]).forEach(err => setErrors({ [err.key]: err.message }))
-    //   }
-    //   else {
-    //     showAlert({ message: "Failed to create datasource. Please try again later", severity: 'error' });
-    //   }
-    //   return;
-    // }
-
-    // return Response.redirect('/errors/not-authorized');
-
-    if (res.status == 401 || res.status == 403) {
-      console.log('this is401/403', paths.notAuthorized);
-      useRouter().push(paths.notAuthorized);
-    }
-    console.log('this is the response', res);
-    const body = await res.json();
-    console.log('this is the response code', body);
-    // if (res.redirected)
-    if (!res.ok) {
-      if (res.status == 401) {
-        return redirect(paths.notAuthorized);
-      }
-    }
-    // const data = await res.json();
-
-    // console.log("this is the res's status", res.status);
-
-    // return { data };
-    // console.log("this is res in details", res);
-
-    // console.log("redirect to edit/id", res);
-    // throw new Error('Function not implemented.');
-  }
 
   const { dispatch: showAlert } = useContext(AlertDispatchContext);
   const { pending } = useFormStatus();

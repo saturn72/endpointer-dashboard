@@ -20,7 +20,7 @@ export async function createDatasource(
   const rawFormData = Object.fromEntries(formData);
   console.log('form-data', rawFormData);
   console.log('this is here');
-  redirect(paths.notAuthorized);
   throw new Error("return { ...datasource, id: '123' }");
+  // redirect(paths.notAuthorized);
   //revalidateTag("by user if")
 }

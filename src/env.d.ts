@@ -1,6 +1,8 @@
 export interface Env {
   BACKEND_URL: string;
 
+  CORS_ALLOWED_ORIGIN: string;
+
   // App
   NEXT_PUBLIC_SITE_URL?: string;
   NEXT_PUBLIC_SITE_VERSION?: string;

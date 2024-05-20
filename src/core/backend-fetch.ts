@@ -13,10 +13,23 @@ type methodOptions = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
 const backendUrl = process.env.BACKEND_URL;
 
+export async function simpleFetch(url: string) {
+  const jwt = await getAuth().currentUser?.getIdToken();
+  const o = {
+    headers: {
+      'Content-type': 'application/json',
+      Authorization: `Bearer ${jwt}`,
+    },
+  };
+
+  const res = await fetch(url, o);
+  return res.json();
+}
+
 export async function apiFetch(
   uri: string,
   method: methodOptions = 'GET',
-  body: any
+  body: any | undefined
 ): Promise<(Response & ErrorInfo) | ErrorInfo> {
   let t = uri;
   while (t?.startsWith('/')) {

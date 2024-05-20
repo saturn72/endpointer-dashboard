@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
 import { getAuth } from 'firebase/auth';
 import { useFormStatus } from 'react-dom';
-
 import { paths } from '@/paths';
 import { AlertDispatchContext } from '@/contexts/app/alert-context';
 import { createDatasource } from './actions';
@@ -18,10 +17,21 @@ import { FormInput } from './form-input';
 import texts from './texts';
 import { FormTags } from './form-tags';
 import { preventContextMenu } from '@fullcalendar/core/internal';
+import { string } from 'zod';
+import formRules from './form-rules';
+import { UserResources } from '@/app/api/datasource/models';
 
-const initialState = {};
+type FormType = {
+  name?: string,
+  alias?: string,
+  tags?: string[]
+};
 
-export function DatasourceDetails(): React.JSX.Element {
+export function DatasourceDetails({
+  data,
+}: {
+  data: UserResources
+}) {
   const [token, setToken] = useState<string>('');
 
   useEffect(() => {
@@ -35,47 +45,62 @@ export function DatasourceDetails(): React.JSX.Element {
   // const [state, formAction] = useFormState(createDatasource, initialState);
   const searchParams = useSearchParams();
 
-  const f = {
+  const f: FormType = {
     name: searchParams.get('name') ?? '',
     alias: searchParams.get('alias') ?? '',
-    tags: searchParams.get('tags') ?? '',
+    tags: Array.from(searchParams.get('tags') ?? ''),
   };
-  const [form, setForm] = useState<{
-    name: string,
-    alias: string,
-    tags: string,
-  }>(f);
-
-
+  const [form, setForm] = useState<FormType>(f)
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const onTagsChanged = (tags: string) => {
-    setForm(prev => {
-      return {
-        ...prev,
-        tags
-      };
-    });
-  };
-
-  const handleChange = (e: { target: { name: any; value: any } }) => {
+  const handleTagChange = (tags: string[]) => {
     setForm((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.value,
+      tags
     }));
   };
-  // async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
-  //   event.preventDefault();
-  //   showAlert(undefined);
+  const onBlurName = (e: any) => {
+    const name: string = e.target.value.trim().toLowerCase();
 
-  //   setErrors(() => ({}));
-  //   setLoading(true);
-  //   const { uri, init } = await buildApiFetchData('api', 'POST', form);
-  //   const res = await fetch(uri, init)
-  //   processServerResponse(res);
-  //   setLoading(false);
-  // }
+    setErrors({})
+    const nameRules = formRules.name;
+
+    const nameLength = name.length;
+    if (nameLength < nameRules.minLength) {
+      return setErrors({ name: nameRules.minLengthMessage })
+    }
+
+    if (nameLength > nameRules.maxLength) {
+      return setErrors({ name: nameRules.maxLengthMessage })
+    }
+    if (!nameRules.startsWithLetter.test(name)) {
+      return setErrors({ name: nameRules.maxLengthMessage })
+    }
+
+    if (!nameRules.doesNotEndsWithHyphen.test(name)) {
+      return setErrors({ name: nameRules.doesNotEndsWithHyphenMessage })
+    }
+
+    if (!nameRules.noMoreThanSingleHyphenInARow.test(name)) {
+      return setErrors({ name: nameRules.noMoreThanSingleHyphenInARowMessage })
+    }
+
+    console.log(data);
+    const existDatasourcesNames: string[] = data.datasources.map(s => {
+      return s.name;
+    });
+
+    if (existDatasourcesNames.includes(name)) {
+      return setErrors({ name: nameRules.duplicateMessage })
+    }
+  }
+  const handleChange = (key: string, value: string) => {
+    setForm((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
 
   async function processServerResponse(res: Response): Promise<void> {
     // console.log("this is the resssssssss", res)
@@ -122,7 +147,6 @@ export function DatasourceDetails(): React.JSX.Element {
 
   return (
     <form action={createDatasourceWithArgs}>
-      {/* <form onSubmit={onSubmit} > */}
       <Stack spacing={4}>
         <Stack spacing={3}>
           <div>
@@ -132,28 +156,28 @@ export function DatasourceDetails(): React.JSX.Element {
             <FormInput
               label={texts.name.label}
               name={'name'}
-              value={form['name']}
+              value={form.name || ''}
               error={errors['name']}
               caption={texts.name.caption}
               placeholder={texts.name.placeholder}
               required
-              onChange={handleChange}
+              onBlur={onBlurName}
+              onChange={val => handleChange('name', val)}
             />
             <FormInput
               label={texts.alias.label}
               name={'alias'}
-              value={form['alias']}
+              value={form.alias || ''}
               error={errors['alias']}
               caption={texts.alias.caption}
               placeholder={texts.alias.placeholder}
-              onChange={handleChange}
+              onChange={val => handleChange('alias', val)}
             />
             <FormTags
-              value={form.tags}
+              name='tags'
               helperText='Optional.'
-              onChange={onTagsChanged}
+              onChange={handleTagChange}
             />
-            <strong style={{ color: 'red' }}>{form.tags}</strong>
           </Stack>
         </Stack>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>

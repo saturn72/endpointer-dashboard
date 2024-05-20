@@ -7,10 +7,10 @@ import { z } from 'zod';
 
 import { paths } from '@/paths';
 
-import { name } from '../Consts';
 import { validateForCreate as validateCreateData } from './datasource-create-validator';
 import { createDatasource } from './datasource-service';
 import { Datasource } from './models';
+import { name } from './rules';
 
 const createSchema = z.object({
   name: z
@@ -24,6 +24,21 @@ const createSchema = z.object({
   tags: z.string().optional(),
 });
 
+export async function GET(req: Request) {
+  return Response.json(
+    {
+      datasources: [
+        {
+          name: '1234',
+        },
+        {
+          name: 'abcd',
+        },
+      ],
+    },
+    { status: 200 }
+  );
+}
 export async function POST(req: Request) {
   // const user = await getUserIfInRole(req, 'registered');
 

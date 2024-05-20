@@ -16,3 +16,7 @@ export interface Datasource {
   published: boolean;
   tags: string | undefined;
 }
+
+export interface UserResources {
+  datasources: Datasource[];
+}

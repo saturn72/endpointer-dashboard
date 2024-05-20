@@ -7,27 +7,26 @@ import {
   InputLabel,
   InputAdornment,
   OutlinedInput,
-  Stack
+  Stack,
+  Input
 } from '@mui/material';
 
 export function FormTags({
-  value,
   label,
   helperText,
+  name,
   onChange
 }: {
-  value?: string;
-  label?: string;
   helperText?: string;
-  onChange: (value: string) => void;
+  label?: string;
+  name?: string;
+  onChange: (tags: string[]) => void;
 }): React.JSX.Element {
 
-  const initTags = value?.split(',')?.filter(i => i) ?? [];
-  const initVal: Set<string> = new Set(initTags);
-  const [tags, setTags] = useState<Set<string>>(initVal);
+  const [tags, setTags] = useState<Set<string>>(new Set());
   const [tagValue, setTagValue] = useState<string>('');
 
-  const handleTagAdd = useCallback(() => {
+  const handleTagAdd = (tagValue: string) => {
     if (!tagValue) {
       return;
     }
@@ -36,12 +35,10 @@ export function FormTags({
       copy.add(tagValue);
       return copy;
     });
-
-    setTagValue('');
-  }, [tagValue]);
+  };
 
   useEffect(() => {
-    onChange(Array.from(tags).join(','));
+    onChange(Array.from(tags));
   }, [tags]);
 
   const handleTagDelete = useCallback((deletedTag: string) => {
@@ -56,40 +53,52 @@ export function FormTags({
     <>
       <FormControl>
         <InputLabel>{label || 'Tags'}</InputLabel>
+        <input type='hidden' name={name || 'tags'} value={Array.from(tags)} />
         <OutlinedInput
-          value={tagValue}
           endAdornment={
             <InputAdornment position="end">
-              <Button color="secondary" onClick={handleTagAdd} size="small" disabled={tagValue.length == 0}>
+              <Button color="secondary"
+                size="small"
+                disabled={tagValue.length == 0}>
                 Add
               </Button>
             </InputAdornment>
           }
-          name="tags"
           onChange={(event) => {
             const value = event.target.value;
-            setTagValue(value);
             if (value.endsWith(',') || value.endsWith(' ')) {
-              handleTagAdd();
+              const trimmed = value.trim();
+              tags.add(trimmed);
+              const t = Array.from(tags);
+              onChange(t);
+              handleTagAdd(trimmed);
+              event.target.value = '';
             }
           }}
         />
         {helperText && <FormHelperText>
           <strong>{helperText}</strong>&nbsp;
         </FormHelperText>}
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: 'center',
+            flexWrap: 'wrap'
+          }}>
+          {Array.from(tags.values()).map((tag) => (
+            <Chip
+              // name={name || 'tags'}
+              key={tag}
+              label={tag}
+              onDelete={() => {
+                handleTagDelete(tag);
+              }}
+              variant="outlined"
+            />
+          ))}
+        </Stack>
       </FormControl>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-        {Array.from(tags.values()).map((tag) => (
-          <Chip
-            key={tag}
-            label={tag}
-            onDelete={() => {
-              handleTagDelete(tag);
-            }}
-            variant="outlined"
-          />
-        ))}
-      </Stack>
     </>
   );
 }

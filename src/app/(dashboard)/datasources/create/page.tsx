@@ -6,14 +6,26 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { ArrowLeft as ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr/ArrowLeft';
+import { UserResources } from '@/app/api/datasource/models';
 
 import { config } from '@/config';
 import { paths } from '@/paths';
 import { DatasourceCreateForm } from '@/components/dashboard/datasource/datasource-create-form';
+import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 
 export const metadata = { title: `Create | Datasources | ${config.site.name}` } satisfies Metadata;
 
-export default function Page(): React.JSX.Element {
+
+export const getServerSideProps = (async () => {
+  const res = await fetch('/api/datasource')
+  const data: UserResources = await res.json();
+  console.log("log", data);
+  return { props: { data } }
+}) satisfies GetServerSideProps<{ data: UserResources }>
+
+export default function Page({
+  data
+}: InferGetServerSidePropsType<typeof getServerSideProps>): React.JSX.Element {
   return (
     <Box
       sx={{
